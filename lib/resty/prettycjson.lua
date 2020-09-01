@@ -7,7 +7,7 @@ return function(dt, lf, id, ac, ec)
     local s, e = (ec or enc)(dt)
     if not s then return s, e end
     lf, id, ac = lf or "\n", id or "\t", ac or " "
-    local i, j, k, n, r, p, q  = 1, 0, 0, #s, {}, nil, nil
+    local i, j, k, n, r, p, q, flag = 1, 0, 0, #s, {}, nil, nil, true
     local al = sub(ac, -1) == "\n"
     for x = 1, n do
         local c = sub(s, x, x)
@@ -32,7 +32,7 @@ return function(dt, lf, id, ac, ec)
                 r[i] = rep(id, j)
             end
         else
-            if c == '"' and p ~= "\\" then
+            if (not flag and c == '"') or (c == '"' and p ~= "\\") then
                 q = not q and true or nil
             end
             if j ~= k then
@@ -40,6 +40,11 @@ return function(dt, lf, id, ac, ec)
                 i, k = i + 1, j
             end
             r[i] = c
+        end
+        if p =="\\" and flag then
+            flag = nil
+        else
+            flat = true
         end
         p, i = c, i + 1
     end
